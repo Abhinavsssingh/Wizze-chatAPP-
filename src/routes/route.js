@@ -1,8 +1,9 @@
 const express = require("express")
 const router = express.Router()
+const {registerUser,login} = require("../controller/userController")
 
-router.get("/ww",function(req,res){
-    res.send({message:"running"})
-})
+router.post("/user/register",registerUser)
+router.post("/user/login",login)
+
 
 module.exports = router

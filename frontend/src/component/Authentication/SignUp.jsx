@@ -1,19 +1,90 @@
-import { Button, FormControl, FormLabel, Input, InputGroup, InputRightElement, VStack } from '@chakra-ui/react'
-
+import { Button, FormControl, FormLabel, Input, InputGroup, InputRightElement, VStack , useToast} from '@chakra-ui/react'
+import axios from "axios"
 import React from 'react'
 import { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 
-function SignUp() {
+  function SignUp() {
+    const toast = useToast()
     const [name, setname] = useState();
     const [email, setemail] = useState();
     const [confirmpassword, setconfirmpassword] = useState();
     const [password, setPassword] = useState();
-    // const [pic, setPic] = useState();
+    const [loading, setLoading] = useState(false);
+    const [pic, setPic] = useState();
     const [show, setShow] = useState(false);
+    const history = useHistory()
 
-    const postDetails = () =>{}
+    
 
-    const submitHandler = () =>{}
+    function HandleImage(e){
+       console.log(e.target.files)
+       setPic(e.target.files[0])
+    }
+
+    const submitHandler = async () =>{
+        setLoading(true)
+        if(!name || !email || !password || !confirmpassword) {
+            toast({
+                title:"please Fill all the Feilds",
+                status:"warning",
+                duration:5000,
+                isClosable:true,
+                position:"bottom"
+            })
+            setLoading(false)
+            return
+        }
+        if (password!==confirmpassword) {
+            toast({
+                title:"password doesnt match",
+                status:"warning",
+                duration:5000,
+                isClosable:true,
+                position:"bottom"
+            })
+            setLoading(false)
+            return
+        }
+        try{
+            const config = {
+                headers:{
+                    "Content-type": "multipart/form-data"
+                }
+            }
+        const pdata = new FormData()
+        pdata.append("name",name)
+        pdata.append("email",email)
+        pdata.append("password",password)
+        if(pic){
+            pdata.append("Files",pic)
+        }
+        const {data} = await axios.post("/user/register",pdata,config) 
+        toast({
+            title:"Registeration Sucessful",
+            status:"sucess",
+            duration:5000,
+            isClosable:true,
+            position:"bottom"
+        })
+
+        localStorage.setItem("UserIfo" , JSON.stringify(data))
+        setLoading(false)
+        history.push("/chat")
+        } catch (error){
+            toast({
+                title:"Error Occured",
+                description: error.response.data.message,
+                status:"error",
+                duration:5000,
+                isClosable:true,
+                position:"bottom"
+            }) 
+            setLoading(false)
+        }
+    }
+
+   
 
     const handleClick = () => setShow(!show)
   return (
@@ -45,14 +116,15 @@ function SignUp() {
         </FormControl>
         <FormControl id="pic" isRequired>
             <FormLabel>Profile pic</FormLabel>
-            <Input type={"File"} p={1.5} accept="image/" placeholder='Jpeg/png' onChange={(e)=>postDetails(e.target.files[0])}/>
+            <Input type={"File"} p={1.5} accept="image/" placeholder='Jpeg/png' onChange={HandleImage}/>
         </FormControl>
 
         <Button
         colorScheme="purple"
         width={"100%"}
         style={{marginTop:15}}
-        onClick={submitHandler}>
+        onClick={submitHandler}
+        isLoading={loading}>
            Sign Up
         </Button>
    </VStack>

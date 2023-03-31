@@ -20,4 +20,4 @@ const userSchema = mongoose.Schema({
     }
 },{timestamps:true})
 
-module.exports = mongoose.Model("Chat",ChatSchema)
+module.exports = mongoose.model("User",userSchema)
