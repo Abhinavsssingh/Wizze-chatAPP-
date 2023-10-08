@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv")
 dotenv.config()
 const {uploadFile} = require("../asw/awsS3")
+const userModel = require("../models/userModel")
 
 const  registerUser = async (req,res) =>{
 
@@ -80,5 +81,21 @@ const login = async (req, res)=>{
     }
 }
 
-module.exports = {registerUser,login}
+const allUser = async (req, res) => {
+    const keyword = req.query.keyword
+    const search = {}
+    console.log(keyword)
+    const dataM = req.token
+    search.email={ $ne: dataM.emailId }
+    if(keyword){
+       search.name = { $regex: keyword, $options: "i" }
+    }
+    const data = await userModel.find(search).select("name")
+    
+
+    return res.status(200).send({ status: true, data: data })
+
+}
+
+module.exports = {registerUser,login,allUser}
 
