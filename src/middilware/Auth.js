@@ -11,10 +11,11 @@ const authentication=async function(req,res,next){
         if(!token) return res.status(400).send({status:false,error:"Token must be present"})
         try{
         var decodedToken=jwt.verify(token,process.env.SECRET_KEY)
+        console.log(decodedToken)
         }catch(err){
          return res.status(401).send({status:false,message:err.message})
         }
-        req.token=decodedToken
+        req.body.token = decodedToken;
        
         next()
     }

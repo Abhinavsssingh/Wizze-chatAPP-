@@ -16,7 +16,9 @@ const ChatSchema = mongoose.Schema({
     latestMessage:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Message"
-    }
+    },
+    groupAdmin: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+
 },{timestamps:true})
 
-module.exports = mongoose.Model("Chat",ChatSchema)
+module.exports = mongoose.model("Chat",ChatSchema)

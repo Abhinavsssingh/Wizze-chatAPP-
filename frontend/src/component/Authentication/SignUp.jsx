@@ -10,20 +10,66 @@ import { useHistory } from 'react-router-dom';
     const [email, setemail] = useState();
     const [confirmpassword, setconfirmpassword] = useState();
     const [password, setPassword] = useState();
-    const [loading, setLoading] = useState(false);
+    const [loading, setPicLoading] = useState(false);
     const [pic, setPic] = useState();
     const [show, setShow] = useState(false);
     const history = useHistory()
 
     
 
-    function HandleImage(e){
-       console.log(e.target.files)
-       setPic(e.target.files[0])
+   const  HandleImage = (pic) => {
+    try{
+            console.log(pic)
+            setPicLoading(true);
+            if (pic === undefined) {
+              toast({
+                title: "Please Select an Image1!",
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+              });
+              return;
+            }
+            console.log(pic);
+            if (pic.type === "image/jpeg" || pic.type === "image/png") {
+              const data = new FormData();
+              data.append("file", pic);
+              data.append("upload_preset", "Chat-App");
+              data.append("cloud_name", "dpuvmjfnp");
+              fetch("https://api.cloudinary.com/v1_1/dpuvmjfnp/image/upload", {
+                method: "post",
+                body: data,
+              })
+                .then((res) => res.json())
+                .then((data) => {
+                  setPic(data.url.toString());
+                  console.log(data.url.toString());
+                  setPicLoading(false);
+                })
+                .catch((err) => {
+                  console.log(err);
+                  setPicLoading(false);
+                });
+            } else {
+              toast({
+                title: "Please Select an 2!",
+                status: "warning",
+                duration: 5000,
+                isClosable: true,
+                position: "bottom",
+              });
+              setPicLoading(false);
+              return;
+            }
+        }catch(error){
+            console.log(error)
+        }
+          
     }
 
     const submitHandler = async () =>{
-        setLoading(true)
+        setPicLoading(true)
         if(!name || !email || !password || !confirmpassword) {
             toast({
                 title:"please Fill all the Feilds",
@@ -32,7 +78,7 @@ import { useHistory } from 'react-router-dom';
                 isClosable:true,
                 position:"bottom"
             })
-            setLoading(false)
+            setPicLoading(false)
             return
         }
         if (password!==confirmpassword) {
@@ -43,7 +89,7 @@ import { useHistory } from 'react-router-dom';
                 isClosable:true,
                 position:"bottom"
             })
-            setLoading(false)
+            setPicLoading(false)
             return
         }
         try{
@@ -69,18 +115,18 @@ import { useHistory } from 'react-router-dom';
         })
 
         localStorage.setItem("UserIfo" , JSON.stringify(data))
-        setLoading(false)
+        setPicLoading(false)
         history.push("/chat")
         } catch (error){
             toast({
-                title:"Error Occured",
+                title:"Error Occured1",
                 description: error.response.data.message,
                 status:"error",
                 duration:5000,
                 isClosable:true,
                 position:"bottom"
             }) 
-            setLoading(false)
+            setPicLoading(false)
         }
     }
 
@@ -116,7 +162,7 @@ import { useHistory } from 'react-router-dom';
         </FormControl>
         <FormControl id="pic" isRequired>
             <FormLabel>Profile pic</FormLabel>
-            <Input type={"File"} p={1.5} accept="image/" placeholder='Jpeg/png' onChange={HandleImage}/>
+            <Input type={"File"} p={1.5} accept="image/*" placeholder='Jpeg/png' onChange={(e) => HandleImage(e.target.files[0])}/>
         </FormControl>
 
         <Button

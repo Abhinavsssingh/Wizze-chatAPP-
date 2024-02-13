@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const dotenv = require("dotenv")
 dotenv.config()
-const {uploadFile} = require("../asw/awsS3")
+// const {uploadFile} = require("../asw/awsS3")
 const userModel = require("../models/userModel")
 
 const  registerUser = async (req,res) =>{
@@ -12,13 +12,15 @@ try{
     
     const data = req.body
     const image = req.files
-    console.log(image[0])
+    console.log(req.body.Files)
+    console.log(image)
+    
 
     if(!data){
         return  res.status(403).send({message:"Please Enter all the feilds"})
     }
 
-    const {name , email , password  } = data
+    const {name , email , password , Files  } = data
 
     if(!name || !email || !password) {
        return  res.status(400).send({message:"Please Enter all the feilds"})
@@ -33,12 +35,9 @@ try{
      data.password = await bcrypt.hash(data.password, salt);
 
      
-    if(image[0]){
-     let url = await uploadFile(image[0]);
-     data["pic"] = url;
-    }
 
-    
+
+     data.pic = Files
 
      const tosend = await UserModel.create(data)
 
@@ -66,7 +65,7 @@ const login = async (req, res)=>{
     if(!checkPassword)  return res.status(401).send({status : false , message : "incorrect password"})
     let payload = 
     {
-          userId: getUser._id.toString(),
+          _id: getUser._id.toString(),
           emailId: getUser.email,
           
     }
