@@ -4,8 +4,10 @@ const Rout = require("./routes/route")
 const mongoose = require("mongoose")
 const dotenv = require("dotenv")
 const multer = require("multer")
+const cors = require("cors")
 dotenv.config()
 
+App.use(cors())
 App.use(multer().any())
 App.use(express.json())
 

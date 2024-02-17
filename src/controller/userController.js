@@ -73,7 +73,7 @@ const login = async (req, res)=>{
     const  token = jwt.sign(payload,process.env.SECRET_KEY,  {expiresIn: "60m"} )
     console.log(token)
       
-    return res.status(200).send({ status: true, message: "token is successfully generated", data:{userId: getUser._id,token:token}})
+    return res.status(200).send({ status: true, message: "token is successfully generated", data:{userId: getUser._id,token:token,name:getUser.name,pic:getUser.pic,email:getUser.email}})
 
     }catch(err){
     return res.status(500).send({status : false, message : err.message})

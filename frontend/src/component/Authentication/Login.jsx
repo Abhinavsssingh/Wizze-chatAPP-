@@ -31,25 +31,23 @@ function Login() {
   try{
       const config = {
           headers:{
-              "Content-type": "multipart/form-data"
+              "Content-type": "application/json"
           }
       }
-  const pdata = new FormData()
-  pdata.append("email",email)
-  pdata.append("password",password)
+
   
-  const {data} = await axios.post("/user/login",pdata,config) 
+  const {data} = await axios.post("http://localhost:5000/user/login",{email:email,password:password},config) 
   toast({
       title:"Registeration Sucessful",
-      status:"sucess",
+      status:"success",
       duration:5000,
       isClosable:true,
       position:"bottom"
-  })
+    })
 
-  localStorage.setItem("UserIfo" , JSON.stringify(data))
+  localStorage.setItem("UserInfo" , JSON.stringify(data))
   setLoading(false)
-  history.push("/chat")
+  history.push("/chats")
   } catch (error){
       toast({
           title:"Error Occured",
