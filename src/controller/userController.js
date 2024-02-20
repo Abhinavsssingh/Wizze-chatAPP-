@@ -81,20 +81,25 @@ const login = async (req, res)=>{
 }
 
 const allUser = async (req, res) => {
-    const keyword = req.query.keyword
-    const search = {}
-    console.log(keyword)
-    const dataM = req.token
-    search.email={ $ne: dataM.emailId }
-    if(keyword){
-       search.name = { $regex: keyword, $options: "i" }
+    const keyword = req.query.keyword;
+    console.log(keyword);
+
+    const search = {
+        $or: [
+            { name: { $regex:"^"+keyword, $options: "i" } }, 
+            { email: { $regex: "^"+keyword, $options: "i" } } 
+        ]
+    };
+
+    try {
+        const data = await userModel.find(search);
+        return res.status(200).send({ status: true, data: data });
+    } catch (error) {
+        console.error("Error fetching users:", error);
+        return res.status(500).send({ status: false, error: "Internal Server Error" });
     }
-    const data = await userModel.find(search).select("name")
-    
+};
 
-    return res.status(200).send({ status: true, data: data })
-
-}
 
 module.exports = {registerUser,login,allUser}
 

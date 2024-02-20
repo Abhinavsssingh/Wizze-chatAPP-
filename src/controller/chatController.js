@@ -3,6 +3,7 @@ const chatModel = require("../models/chatModel")
 const userModel = require("../models/userModel")
 
 const getChat = async (req, res) => {
+    console.log(req.body)
     const { userId } = req.body;
     if (!userId) {
         return res.status(404).send("user not found")
@@ -46,7 +47,7 @@ const getChat = async (req, res) => {
 const GetAllchat = async (req, res) => {
     try {
         const { _id } = req.body.token
-        const data = await chatModel.find({ users: { $elemMatch: { $eq: _id } } })
+        let data = await chatModel.find({ users: { $elemMatch: { $eq: _id } } })
             .populate("users", "-password")
             .populate("groupAdmin", "-password")
             .populate("latestMessage")

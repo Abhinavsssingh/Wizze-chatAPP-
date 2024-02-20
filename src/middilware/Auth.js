@@ -1,5 +1,5 @@
 const jwt=require('jsonwebtoken')
-const { isValidObjectId } = require('mongoose')
+
 
 
 
@@ -10,6 +10,7 @@ const authentication=async function(req,res,next){
         console.log(token)
         if(!token) return res.status(400).send({status:false,error:"Token must be present"})
         try{
+        console.log(process.env.SECRET_KEY)
         var decodedToken=jwt.verify(token,process.env.SECRET_KEY)
         console.log(decodedToken)
         }catch(err){

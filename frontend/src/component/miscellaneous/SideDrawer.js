@@ -1,17 +1,24 @@
-import { Avatar, Box, Button, Center, Flex, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Text, Tooltip } from '@chakra-ui/react'
+import { Avatar, Box, Button, Center,Drawer, Flex, Menu, MenuButton, MenuDivider, MenuItem, MenuList, Text, Tooltip,DrawerBody,DrawerFooter,DrawerHeader,DrawerOverlay,DrawerContent,DrawerCloseButton,Input, Toast, useToast, Spinner } from '@chakra-ui/react'
 import React, { useState } from 'react'
 import { ChatState } from '../../Context/ChatProvider'
 import Profile from './Profile'
+import ChatLoading from './ChatLoading'
+import UserListItem from '../userAvatar/UserListItem'
 import { useHistory } from 'react-router-dom'
+import { useDisclosure } from '@chakra-ui/react'
+import axios from "axios"
+
+
 
 const SideDrawer = () => {
   const [search,setSearch] = useState("")
   const [searchResult,setsearchResult] = useState([])
   const [loading,setLoading] = useState(false)
-  const [loadingChat,setLoadingChat] = useState();
-
-  const{user} = ChatState()
-  console.log(user)
+  const [loadingChat,setLoadingChat] = useState(false);
+  
+  const{user,setSelectedChat,chats, setChats} = ChatState()
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  // console.log(user)
 
   const history = useHistory()
 
@@ -19,6 +26,72 @@ const SideDrawer = () => {
     localStorage.removeItem("UserInfo")
     history.push("/")
   }
+
+  const toast = useToast()
+
+  const accessChat = async(userId) => {
+      //  console.log(userId)
+       try{
+        setLoadingChat(true)
+        const config = {
+          headers: {
+            "Content-type": "application/json",
+            token:user.data.token
+          }
+        }
+        const{data} = await axios.post("http://localhost:5000/chat/getChat",{userId:userId},config)
+
+        if(!chats.find((c)=>c._id===data._id)) setChats([data,...chats])
+        setSelectedChat(data)
+        setLoadingChat(false)
+        onClose()
+
+       }catch(error){
+        toast({
+          title:"Req failed",
+          status: "error",
+          duration:5000,
+          isClosable:true,
+          position:'bottom-left'
+        })
+       }
+  }
+
+  const handleSearch = async() => {
+    if(!search) {toast({
+      title:"Please enter something in search",
+      status: "warning",
+      duration:5000,
+      isClosable:true,
+      position:'top-left'
+    })
+    return
+  }
+    try{
+      // console.log(search)
+      setLoading(true)
+      const config = {
+        headers: {
+          token:user.data.token
+        }
+      }
+      // console.log(config)
+      const{data} = await axios.get(`http://localhost:5000/user/allUsers?keyword=${search}`,config)
+      // data = data.data
+      setLoading(false)
+      setsearchResult(data)
+    }catch(err){
+      toast({
+        title:"Req failed",
+        status: "error",
+        duration:5000,
+        isClosable:true,
+        position:'bottom-left'
+      })
+    }
+  }
+
+
   
 
   return (
@@ -33,7 +106,7 @@ const SideDrawer = () => {
         <Tooltip label="Search Users to Chat"
         hasArrow
         placement='bottom-end'>
-            <Button variant='ghost'>
+            <Button variant='ghost' onClick={onOpen}>
              <Text display={{base:"none",md:"flex"}} px='4'>Search User</Text>
              <i class="fa-brands fa-searchengin" style={{ fontSize: '30px' }}></i>
             </Button>
@@ -61,6 +134,32 @@ const SideDrawer = () => {
             </Menu>
         </div>
       </Box>
+      <Drawer placement='left' onClose={onClose} isOpen={isOpen}>
+        <DrawerOverlay/>
+        <DrawerContent>
+          <DrawerHeader borderBottomWidth="1px">Search User</DrawerHeader>
+          <DrawerBody>
+            <Box display="flex" paddingBottom={2}>
+              <Input placeholder={"Search by name or email"}
+              mr={2}
+              value={search}
+              onChange={(e)=> setSearch(e.target.value)}>
+              </Input>
+              <Button onClick={handleSearch}>Go</Button>
+
+            </Box>
+            {loading?(
+              <ChatLoading/>
+            ):(searchResult.data?.map(user => (
+              <UserListItem
+              key={user._id}
+              user={user}
+              handleFunction={()=>accessChat(user._id)}/>
+            )))}
+            {loadingChat && <Spinner ml="auto" display="flex" />}
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </>
   )
 }
