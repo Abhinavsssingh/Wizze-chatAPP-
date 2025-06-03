@@ -2,7 +2,7 @@ import { Avatar, Box, Button, Center,Drawer, Flex, Menu, MenuButton, MenuDivider
 import React, { useState } from 'react'
 import { ChatState } from '../../Context/ChatProvider'
 import Profile from './Profile'
-import ChatLoading from './ChatLoading'
+import ChatLoading from '../ChatLoading'
 import UserListItem from '../userAvatar/UserListItem'
 import { useHistory } from 'react-router-dom'
 import { useDisclosure } from '@chakra-ui/react'

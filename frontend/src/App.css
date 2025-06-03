@@ -4,6 +4,6 @@
   min-height: 100vh;
   display: flex;
   background-image: url("./istockphoto-1371726643-170667a.png");
-  background-size: cover;
   background-position: center;
+  background-size: cover;
 }
