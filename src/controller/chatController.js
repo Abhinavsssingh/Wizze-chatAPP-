@@ -96,11 +96,13 @@ const CreateGroupChat = async (req, res) => {
 
 const reNameGC = async (req, res) => {
     try {
+        console.log(req.body)
         const { chatID, chatName, token } = req.body
         const Chatdata = await chatModel.findOne({ _id: chatID })
         if (!Chatdata) { return res.status(404).send({ message: "chat not found" }) }
         if (token._id != Chatdata.groupAdmin._id) return res.status(403).send({ message: "not Authorized" })
         const data = await chatModel.findOneAndUpdate({ _id: chatID }, { chatName: chatName }, { new: true }).populate("users", "-password").populate("groupAdmin", "-password")
+        console.log({ data: data })
         res.status(200).send({ data: data })
     } catch (error) {
         res.status(500).send({ messsage: error.message })

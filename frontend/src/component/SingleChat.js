@@ -8,7 +8,7 @@ import Profile from './miscellaneous/Profile';
 import "./style.css";
 import UpdateGroupChatModal from './miscellaneous/updateGroupChatModal';    
 
-function SingleChat(fetchAgain, setFetchAgain) {
+function SingleChat({fetchAgain, setFetchAgain}) {
     const { user, SelectedChat, setSelectedChat } = ChatState()
     return <>{
         SelectedChat ? (<>
@@ -29,9 +29,14 @@ function SingleChat(fetchAgain, setFetchAgain) {
 
 
                 {!SelectedChat.isGroupChat ? (
-                <>{getSender(user, SelectedChat.users)}
-                <Profile user={getSender_full(user, SelectedChat.users)} />
-
+                <>
+                {/* Only call getSender when SelectedChat.users exists */}
+                {SelectedChat.users && getSender(user, SelectedChat.users)}
+                
+                {/* Only render Profile when SelectedChat.users exists */}
+                {SelectedChat.users && (
+                  <Profile user={getSender_full(user, SelectedChat.users)} />
+                )}
                 </>):
                 (
                 <>
