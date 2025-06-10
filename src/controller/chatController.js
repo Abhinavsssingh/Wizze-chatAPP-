@@ -134,13 +134,33 @@ const rmToGC = async (req, res) => {
         const Chatdata = await chatModel.findOne({ _id: ChatID })
         if (!Chatdata) return res.status(400).send({ message: "Chat not found" })
         if (!Chatdata.users.includes(userId)) return res.status(400).send({ message: "user not present in the group" })
-        if (token._id != Chatdata.groupAdmin._id) return res.status(403).send({ message: "not Authorized" })
-        const data = await chatModel.findOneAndUpdate({ _id: ChatID }, { $pull: { users: userId } }, { new: true }).populate("users", "-password").populate("groupAdmin", "-password")
+        
+        // Remove user from group
+        const data = await chatModel.findOneAndUpdate(
+            { _id: ChatID }, 
+            { $pull: { users: userId } }, 
+            { new: true }
+        ).populate("users", "-password").populate("groupAdmin", "-password")
+        
+        // Check if removed user was the admin
+        if (userId == Chatdata.groupAdmin._id && data.users.length > 0) {
+            // Pick the first remaining user as new admin
+            const newAdminId = data.users[0]._id;
+            
+            // Update the admin
+            const updatedData = await chatModel.findOneAndUpdate(
+                { _id: ChatID },
+                { groupAdmin: newAdminId },
+                { new: true }
+            ).populate("users", "-password").populate("groupAdmin", "-password")
+            
+            return res.status(200).send({ data: updatedData })
+        }
+        
         res.status(200).send({ data: data })
     } catch (err) {
         res.status(500).send({ message: err.message })
     }
-
 }
 
 

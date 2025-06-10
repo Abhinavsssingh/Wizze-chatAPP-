@@ -26,7 +26,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { user, SelectedChat, setSelectedChat } = ChatState();
   
-  const [groupChatName, setgroupChatName] = useState();
+  const [groupChatName, setgroupChatName] = useState("");
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -42,11 +42,12 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
           token: user.data.token
         },
       };
+      
       const { data } = await axios.post(
         `http://localhost:5000/chat/rmToGC`,
         {
           ChatID: SelectedChat._id,
-          userId: user.data._id
+          userId: user.data.userId
         },
         config
       );
@@ -225,7 +226,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
             }
 
             const { data } = await axios.get(`http://localhost:5000/user/allUsers?keyword=${search}`, config)
-            console.log(data)
+            // console.log(data)
             setLoading(false)
             setSearchResult(data.data)
         } catch (error) {
@@ -238,7 +239,7 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
             })
         }
     }
-    console.log("SelectedChat:", SelectedChat);
+    // console.log("SelectedChat:", SelectedChat);
     
     return (
         <>
@@ -302,8 +303,8 @@ const UpdateGroupChatModal = ({ fetchAgain, setFetchAgain }) => {
                     </ModalBody>
 
                     <ModalFooter>
-                        <Button colorScheme='red' mr={3} onClick={() => { handleLeave(user) }}>
-                            Remove
+                        <Button colorScheme='red' mr={3} onClick={() => { handleLeave() }}>
+                            Leave
                         </Button>
 
                     </ModalFooter>
